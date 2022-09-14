@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicle details</title>
+    <style>
+        .error {
+            color: red;
+        }
+
+        .info {
+            color: green;
+        }
+    </style>
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" rel="stylesheet">
+    <script crossorigin="anonymous"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container" th:fragment="header">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+                data-target="#navbarNav" data-toggle="collapse" type="button">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Home</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">Sign in</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/signup}">Sign up</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/logout}">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div>
+        <input th:id="${_csrf.parameterName}"
+               th:value="${_csrf.token}"
+               type="hidden"/>
+        <table class="table" id="vehicle"
+               th:if="${#authentication?.getAuthorities() != null ? #strings.contains(#authentication?.getAuthorities(),'[ROLE_MANAGER]'): false} ">
+            <caption th:text="${'Vehicle details'}"></caption>
+            <style>
+                caption {
+                    caption-side: top;
+                }
+            </style>
+        </table>
+    </div>
+
+    <div>
+        <input th:id="${_csrf.parameterName}"
+               th:value="${_csrf.token}"
+               type="hidden"/>
+        <table class="table" id="trips"
+               th:if="${#authentication?.getAuthorities() != null ? #strings.contains(#authentication?.getAuthorities(),'[ROLE_MANAGER]'): false} ">
+            <caption>
+                <div id="tripsTableCaption">Trips Loading...</div>
+            </caption>
+            <style>
+                caption {
+                    caption-side: top;
+                }
+            </style>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    const vehicleNode = document.querySelector('#vehicle');
+    const tripsNode = document.querySelector('#trips');
+
+    if (vehicleNode) {
+        loadVehicle();
+    }
+
+    if (tripsNode) {
+        loadTrips();
+    }
+
+    async function loadTrips() {
+        let page = [[${page}]];
+        let size = [[${size}]];
+        let vehicleId = [[${vehicleId}]];
+        let response = await fetch("api/trips/vehicles/" + vehicleId + "?page=" + page + "&size=" + size, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.ok) {
+            tripsNode.innerHTML +=
+                '<thead>' +
+                '<tr>' +
+                '<th scope="col">id</th>' +
+                '<th scope="col">start point</th>' +
+                '<th scope="col"></th>' +
+                '<th scope="col"></th>' +
+                '<th scope="col"></th>' +
+                '<th scope="col">end point</th>' +
+                '<th scope="col"></th>' +
+                '<th scope="col"></th>' +
+                '<th scope="col"></th>' +
+                '<th scope="col"></th>' +
+                '</tr>' +
+                '<tr>' +
+                '<th scope="col"></th>' +
+                '<th scope="col">timestamp</th>' +
+                '<th scope="col">latitude</th>' +
+                '<th scope="col">longitude</th>' +
+                '<th scope="col">description</th>' +
+                '<th scope="col">timestamp</th>' +
+                '<th scope="col">latitude</th>' +
+                '<th scope="col">longitude</th>' +
+                '<th scope="col">description</th>' +
+                '<th scope="col"></th>' +
+                '</tr>' +
+                '</thead>'
+            tripsNode.innerHTML += '<tbody>'
+            response.json().then(response => {
+                    response.content.forEach(trip =>
+                        tripsNode.innerHTML +=
+                            '<tr>' +
+                            '<td>' + trip.id + '</td>' +
+                            '<td>' + trip.startPoint.timestamp + '</td>' +
+                            '<td>' + trip.startPoint.latitude + '</td>' +
+                            '<td>' + trip.startPoint.longitude + '</td>' +
+                            '<td>' + trip.startPoint.description + '</td>' +
+                            '<td>' + trip.endPoint.timestamp + '</td>' +
+                            '<td>' + trip.endPoint.latitude + '</td>' +
+                            '<td>' + trip.endPoint.longitude + '</td>' +
+                            '<td>' + trip.endPoint.description + '</td>' +
+                            '<td><a class="btn btn-success pull-right" onclick="showMap(' + trip.id + ')">Show map</a></td>' +
+                            '</td>' +
+                            '</tr>'
+                    )
+
+                    let totalPages = Math.ceil(response.total / response.size);
+                    if (totalPages > 1) {
+                        tripsNode.innerHTML +=
+                            '<tr>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td style="color:grey;">Page ' + (response.page + 1) + ' of ' + Math.ceil(response.total / response.size) + '<div class="input-group mb-3">\n' +
+                            '  <input id="goToPage" type="text" class="form-control" placeholder="choose page" aria-describedby="basic-addon2">\n' +
+                            '  <div class="input-group-append">\n' +
+                            '    <button class="btn btn-outline-secondary" type="button" onclick="goToPage(' + vehicleId + ')">Go</button>\n' +
+                            '  </div>\n' +
+                            '</div></td>' +
+                            '</tr>'
+                    }
+                }
+            );
+            tripsNode.innerHTML += '</tbody>'
+            document.getElementById('tripsTableCaption').textContent = "Trips"
+        } else {
+            console.log("Error happened " + response);
+            response.text().then(data => {
+                try {
+                    let errorMessage = JSON.parse(data);
+                    document.getElementById('errorFragment').textContent = errorMessage.message;
+                } catch (e) {
+                    document.getElementById('errorFragment').textContent = data;
+                }
+                document.getElementById('infoFragment').textContent = "";
+            });
+        }
+    }
+
+    async function loadVehicle() {
+        let vehicleId = [[${vehicleId}]];
+        let response = await fetch("api/vehicles/" + vehicleId, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.ok) {
+            vehicleNode.innerHTML +=
+                '<thead>' +
+                '<tr>' +
+                '<th scope="col">id</th>' +
+                '<th scope="col">price</th>' +
+                '<th scope="col">color</th>' +
+                '<th scope="col">model id</th>' +
+                '<th scope="col">brand</th>' +
+                '<th scope="col">type</th>' +
+                '<th scope="col">tank capacity (in liters)</th>' +
+                '<th scope="col">load capacity (in tons)</th>' +
+                '<th scope="col">seats</th>' +
+                '<th scope="col">purchase date/time (enterprise time zone)</th>' +
+                '<th scope="col">drivers</th>' +
+                '</tr>' +
+                '</thead>'
+            vehicleNode.innerHTML += '<tbody>'
+            response.json().then(vehicle => {
+                    vehicleNode.innerHTML +=
+                        '<tr>' +
+                        '<td>' + vehicle.id + '</td>' +
+                        '<td>' + vehicle.price + '</td>' +
+                        '<td>' + vehicle.color + '</td>' +
+                        '<td>' + vehicle.modelId + '</td>' +
+                        '<td>' + vehicle.brand + '</td>' +
+                        '<td>' + vehicle.type + '</td>' +
+                        '<td>' + vehicle.tankCapacityInLiters + '</td>' +
+                        '<td>' + vehicle.loadCapacityInTons + '</td>' +
+                        '<td>' + vehicle.seats + '</td>' +
+                        '<td>' + changeTimeZone(vehicle.purchaseDateTime, vehicle.enterpriseTimeZone) + '</td>' +
+                        '<td>' + vehicle.drivers + '</td>' +
+                        '</tr>'
+                }
+            );
+            vehicleNode.innerHTML += '</tbody>'
+        } else {
+            console.log("Error happened " + response);
+            response.text().then(data => {
+                try {
+                    let errorMessage = JSON.parse(data);
+                    document.getElementById('errorFragment').textContent = errorMessage.message;
+                } catch (e) {
+                    document.getElementById('errorFragment').textContent = data;
+                }
+                document.getElementById('infoFragment').textContent = "";
+            });
+        }
+    }
+
+    async function showMap(tripId) {
+        let response = await fetch("api/trips/" + tripId, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.ok) {
+            let chain = "";
+            response.json().then(content => {
+                    chain = chain + content[0].longitude + "," + content[0].latitude + ","
+                    let incr = Math.ceil(content.length / 50 )
+                    for (let index = 1; index < content.length - 1; index = index + incr) {
+                        chain = chain + content[index].longitude + "," + content[index].latitude + ","
+                    }
+                    chain = chain + content[content.length - 1].longitude + "," + content[content.length - 1].latitude
+
+                    window.location.href = "https://static-maps.yandex.ru/1.x/?l=map&pl=" + chain
+                }
+            );
+        } else {
+            response.text().then(data => {
+                try {
+                    let errorMessage = JSON.parse(data);
+                    document.getElementById('errorFragment').textContent = errorMessage.message;
+                } catch (e) {
+                    document.getElementById('errorFragment').textContent = data;
+                }
+                document.getElementById('infoFragment').textContent = "";
+            });
+        }
+    }
+
+    async function goToPage(vehicleId) {
+        let value = parseInt(document.getElementById('goToPage').value) - 1
+        window.location.href = "vehicle?vehicleId=" + vehicleId + "&page=" + value + "&size=5";
+    }
+
+    function changeTimeZone(date, timeZone) {
+        return new Date(new Date(date)).toLocaleString("en-US", {timeZone: timeZone})
+    }
+</script>
+
+</body>
+</html>

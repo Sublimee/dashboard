@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicle editor</title>
+    <style>
+        .error {
+            color: red;
+        }
+
+        .info {
+            color: green;
+        }
+    </style>
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" rel="stylesheet">
+    <script crossorigin="anonymous"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container" th:fragment="header">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+                data-target="#navbarNav" data-toggle="collapse" type="button">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Home</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">Sign in</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/signup}">Sign up</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/logout}">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <form action="#"
+          id="form"
+          method="post"
+          th:action="@{/form/vehicles-create}"
+          th:object="${vehicle}">
+        <div class="form-group">
+            <label for="id">Vehicle Id</label>
+            <input class="form-control" id="id" readonly th:field="*{id}" type="text">
+            <div class="error" id="id_error"></div>
+        </div>
+        <div class="form-group">
+            <label for="price">Price</label>
+            <input class="form-control" id="price" th:field="*{price}" type="text">
+            <div class="error" id="price_error"></div>
+        </div>
+        <div class="form-group">
+            <label for="color">Color</label>
+            <select class="form-control" id="color" th:field="*{color}">
+                <option th:each="color : ${colors}" th:text="${color}" th:value="${color}"></option>
+            </select>
+            <div class="error" id="color_error"></div>
+        </div>
+        <div class="form-group">
+            <label for="model">Model</label>
+            <select class="form-control" id="model" th:field="*{modelId}">
+                <option th:each="model : ${models}" th:text="${model.brand}" th:value="${model.id}"></option>
+            </select>
+            <div class="error" id="model_error"></div>
+        </div>
+        <div class="form-group">
+            <label for="enterpriseId">Enterprise Id</label>
+            <input class="form-control" id="enterpriseId" readonly th:field="*{enterpriseId}" type="text">
+            <div class="error" id="enterpriseId_error"></div>
+        </div>
+        <div class="form-group">
+            <label for="drivers">Drivers</label>
+            <select class="form-control" id="drivers" multiple size="5" th:field="*{drivers}">
+                <option th:each="driver : ${drivers}" th:text="${driver}" th:value="${driver}"></option>
+            </select>
+            <div class="error" id="drivers_error"></div>
+        </div>
+        <input class="btn btn-secondary" type="submit" value="Submit">
+    </form>
+</div>
+
+<script>
+    // We access to the inputs by their id's
+    let price = document.getElementById("price");
+    let color = document.getElementById("color");
+    let modelId = document.getElementById("modelId");
+
+    // Error messages
+    let errorElement_price = document.getElementById("price_error");
+    let errorElement_color = document.getElementById("color_error");
+    let errorElement_modelId = document.getElementById("modelId_error");
+
+    // Form
+    let contactForm = document.getElementById("form");
+
+    // Event listener
+    contactForm.addEventListener("submit", function (e) {
+        let messagePrice = [];
+        let messageColor = [];
+        let messageModelId = [];
+
+        if (price.value === "" || price.value === null) {
+            messagePrice.push("* This field is required");
+        }
+
+        if (color.value === "" || color.value === null) {
+            messageColor.push("* This field is required");
+        }
+
+        if (modelId.value === "" || modelId.value === null) {
+            messageModelId.push("* This field is required");
+        }
+
+        // Statement to shows the errors
+        if (messagePrice.length || messageColor.length || messageModelId.length) {
+            e.preventDefault();
+            errorElement_price.innerText = messagePrice
+            errorElement_color.innerText = messageColor
+            errorElement_modelId.innerText = messageModelId
+        }
+    });
+</script>
+</body>
+</html>

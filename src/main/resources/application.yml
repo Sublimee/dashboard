@@ -1,0 +1,33 @@
+# Database Properties
+spring:
+  # Hibernate Properties
+  # The SQL dialect makes Hibernate generate better SQL for the chosen database
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: update
+      # Avoid issue with JPA case insensitive
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    database-platform: org.hibernate.spatial.dialect.postgis.PostgisDialect
+    show-sql: true
+    database: postgresql
+    # PotGIS configuration
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  datasource:
+    url: jdbc:postgresql://db:5432/postgis
+    username: postgis
+    password: postgis
+
+logging:
+  level:
+    org:
+      springframework.security: DEBUG
+
+server:
+  error:
+    include-message: always
