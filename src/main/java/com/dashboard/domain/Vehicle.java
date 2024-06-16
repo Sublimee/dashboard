@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,7 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
-import java.util.Set;
+import java.util.*;
 
 
 @Entity
@@ -52,7 +51,7 @@ public class Vehicle {
     @JoinColumn(name = "enterprise_id", referencedColumnName = "id", nullable = false)
     private Enterprise enterprise;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "vehicle", cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "vehicle")
     private Set<Driver> drivers;
 
     @Column(nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")

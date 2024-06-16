@@ -54,6 +54,7 @@ public class VehicleService {
     }
 
     public void deleteById(Long id) {
+        vehicleRepository.findById(id).ifPresent(vehicle -> vehicle.setDrivers(new HashSet<>()));
         vehicleRepository.deleteById(id);
     }
 
