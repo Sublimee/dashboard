@@ -6,6 +6,11 @@
     - name: Clone the repository
       git:
         repo: 'https://github.com/Sublimee/dashboard.git'
-        dest: "~/dashboard"
+        dest: '{{ app_directory }}'
         version: master
         depth: 1
+
+    - name: Render docker-compose.yml from template
+      template:
+        src: 'docker-compose.yml.j2'
+        dest: '{{ app_directory }}/docker-compose.yml'
