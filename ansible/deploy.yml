@@ -10,17 +10,34 @@
         version: master
         depth: 1
 
-    - name: Render docker-compose.yml from template
+    - name: Ensure the dhparam directory exists
+      file:
+        path: "{{ app_directory }}/dhparam"
+        state: directory
+
+    - name: Generate Diffie-Hellman key
+      shell: openssl dhparam -out ./dhparam/dhparam-2048.pem 2048
+      args:
+        chdir: "{{ app_directory }}"
+        executable: /bin/bash
+
+    - name: Render init docker-compose.yml from template
       template:
-        src: './templates/docker-compose.yml.j2'
+        src: './templates/init.docker-compose.yml.j2'
         dest: '{{ app_directory }}/docker-compose.yml'
 
-    - name: Ensure the nginx conf directory exists
+    - name: Ensure the nginx configuration directory exists
       file:
         path: "{{ app_directory }}/nginx/conf.d"
         state: directory
 
-    - name: Render nginx/app/app.conf from template
+    - name: Render init nginx/app/app.conf from template
       template:
-        src: './templates/nginx/conf.d/app.conf.j2'
+        src: './templates/nginx/conf.d/init.app.conf.j2'
         dest: '{{ app_directory }}/nginx/conf.d/app.conf'
+
+    - name: Run init docker-compose settings
+      shell: docker-compose -f docker-compose.yml up -d --build
+      args:
+        chdir: "{{ app_directory }}"
+        executable: /bin/bash
