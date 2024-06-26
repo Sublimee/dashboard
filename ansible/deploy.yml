@@ -1,5 +1,5 @@
 - name: Deploy application to remote server
-  hosts: myservers
+  hosts: my_servers
   vars_files:
     - vars.yml
   tasks:
