@@ -1,0 +1,6 @@
+email: your_email
+domain: your_domain
+postgres:
+  db: your_postgres_db
+  user: your_postgres_user
+  password: your_postgres_password

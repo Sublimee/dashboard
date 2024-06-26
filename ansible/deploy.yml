@@ -1,0 +1,9 @@
+- name: Deploy application to remote server
+  hosts: myservers
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Ensure the repository directory exists
+      file:
+        path: "~/dashboard"
+        state: directory
