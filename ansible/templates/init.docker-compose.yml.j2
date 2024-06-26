@@ -25,7 +25,7 @@ services:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
       - web-root:/var/www/html
-    command: certonly --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --staging -d {{ domain }} -d www.{{ domain }}
+    command: certonly --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --force-renewal -d {{ domain }} -d www.{{ domain }}
 
   db:
     image: postgis/postgis:14-master
