@@ -1,0 +1,67 @@
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:1.27
+    restart: always
+    depends_on:
+      myapp:
+        condition: service_started
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - web-root:/var/www/html
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+    networks:
+      - app-network
+
+  certbot:
+    image: certbot/certbot
+    depends_on:
+      - nginx
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/html
+    command: certonly --webroot --webroot-path=/var/www/html --email {{ email }} --agree-tos --no-eff-email --staging -d {{ domain }} -d www.{{ domain }}
+
+  db:
+    image: postgis/postgis:14-master
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U {{ postgres.user }} -d {{ postgres.db }}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_DB: {{ postgres.db }}
+      POSTGRES_USER: {{ postgres.user }}
+      POSTGRES_PASSWORD: {{ postgres.password }}
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - app-network
+
+  myapp:
+    container_name: myapp
+    image: myapp:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    networks:
+      - app-network
+
+volumes:
+  certbot-etc:
+  certbot-var:
+  web-root:
+
+networks:
+  app-network:
+    driver: bridge
