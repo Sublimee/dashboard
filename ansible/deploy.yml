@@ -12,5 +12,15 @@
 
     - name: Render docker-compose.yml from template
       template:
-        src: 'docker-compose.yml.j2'
+        src: './templates/docker-compose.yml.j2'
         dest: '{{ app_directory }}/docker-compose.yml'
+
+    - name: Ensure the nginx conf directory exists
+      file:
+        path: "{{ app_directory }}/nginx/conf.d"
+        state: directory
+
+    - name: Render nginx/app/app.conf from template
+      template:
+        src: './templates/nginx/conf.d/app.conf.j2'
+        dest: '{{ app_directory }}/nginx/conf.d/app.conf'
