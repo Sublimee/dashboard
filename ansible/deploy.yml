@@ -7,3 +7,10 @@
       file:
         path: "~/dashboard"
         state: directory
+
+    - name: Clone the repository
+      git:
+        repo: 'https://github.com/Sublimee/dashboard.git'
+        dest: "~/dashboard"
+        version: master
+        depth: 1
