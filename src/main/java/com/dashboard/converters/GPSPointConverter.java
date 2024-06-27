@@ -35,8 +35,8 @@ public class GPSPointConverter {
                 .id(gpsPoint.getId())
                 .vehicleId(gpsPoint.getVehicle().getId())
                 .timestamp(gpsPoint.getTimestamp().withZoneSameInstant(enterpriseZoneId))
-                .latitude(format(gpsPoint.getPoint().getX()))
-                .longitude(format(gpsPoint.getPoint().getY()))
+                .latitude(format(gpsPoint.getPoint().getY()))
+                .longitude(format(gpsPoint.getPoint().getX()))
                 .description(description)
                 .build();
     }
