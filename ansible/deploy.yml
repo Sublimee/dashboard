@@ -1,9 +1,89 @@
 - name: Deploy application to remote server
-  hosts: myservers
+  hosts: my_servers
   vars_files:
     - vars.yml
   tasks:
-    - name: Ensure the repository directory exists
+    - name: Clone the repository
+      git:
+        repo: 'https://github.com/Sublimee/dashboard.git'
+        dest: '{{ app_directory }}'
+        version: master
+        depth: 1
+
+    - name: Ensure the dhparam directory exists
       file:
-        path: "~/dashboard"
+        path: "{{ app_directory }}/dhparam"
         state: directory
+
+    - name: Generate Diffie-Hellman key
+      shell: openssl dhparam -out ./dhparam/dhparam-2048.pem 2048
+      args:
+        chdir: "{{ app_directory }}"
+        executable: /bin/bash
+
+    - name: Render init docker-compose.yml from template
+      template:
+        src: './templates/init.docker-compose.yml.j2'
+        dest: '{{ app_directory }}/init-docker-compose.yml'
+
+    - name: Render docker-compose.yml from template
+      template:
+        src: './templates/docker-compose.yml.j2'
+        dest: '{{ app_directory }}/docker-compose.yml'
+
+    - name: Ensure the nginx configuration directory exists
+      file:
+        path: "{{ app_directory }}/nginx/conf.d"
+        state: directory
+
+    - name: Render init nginx/app/app.conf from template
+      template:
+        src: './templates/nginx/conf.d/init.app.conf.j2'
+        dest: '{{ app_directory }}/nginx/conf.d/app.conf'
+
+    - name: Up init setup
+      shell: docker-compose -f init-docker-compose.yml up -d --build
+      args:
+        chdir: "{{ app_directory }}"
+        executable: /bin/bash
+
+#     Debug purposes only
+#
+#    - name: Get credentials for obtaining a certificate from nginx
+#      shell: docker-compose -f init-docker-compose.yml exec nginx ls -la /etc/letsencrypt/live
+#      args:
+#        chdir: "{{ app_directory }}"
+#      register: ls_output
+#
+#    - name: Debug credentials output
+#      debug:
+#        var: ls_output.stdout
+#
+#    - name: Check for presence of specific files
+#      assert:
+#        that:
+#          - "'README' in ls_output.stdout"
+#          - "'{{ domain }}' in ls_output.stdout"
+#        fail_msg: "Required files are not present in /etc/letsencrypt/live"
+
+    - name: Down nginx
+      shell: docker-compose -f init-docker-compose.yml stop nginx
+      args:
+        chdir: "{{ app_directory }}"
+        executable: /bin/bash
+
+    - name: Remove init nginx conf
+      file:
+        path: "{{ app_directory }}/nginx/conf.d/app.conf"
+        state: absent
+
+    - name: Render nginx/app/app.conf from template
+      template:
+        src: './templates/nginx/conf.d/app.conf.j2'
+        dest: '{{ app_directory }}/nginx/conf.d/app.conf'
+
+    - name: Start nginx with with https
+      shell: docker-compose -f docker-compose.yml up -d --force-recreate --no-deps nginx
+      args:
+        chdir: "{{ app_directory }}"
+        executable: /bin/bash
