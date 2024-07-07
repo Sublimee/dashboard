@@ -6,6 +6,7 @@ import com.dashboard.dto.GPSPointDto;
 import com.dashboard.repository.VehicleRepository;
 import com.dashboard.repository.GPSPointRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
@@ -22,6 +23,7 @@ public class TrackService {
     private final GPSPointRepository repository;
     private final VehicleRepository vehicleRepository;
 
+    @Cacheable("track")
     public List<GPSPointDto> getTrack(Long vehicleId, ZonedDateTime from, ZonedDateTime to) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow();
 

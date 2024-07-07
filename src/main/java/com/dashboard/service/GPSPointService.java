@@ -55,7 +55,7 @@ public class GPSPointService {
                 Point point = new Point(new CoordinateArraySequence(new Coordinate[]{new Coordinate(x, y)}), new GeometryFactory());
                 GPSPoint gpsPoint = GPSPoint.builder()
                         .point(point)
-                        .timestamp(now.plus(i, ChronoUnit.MINUTES))
+                        .timestamp(now.plusMinutes(i))
                         .vehicle(vehicle)
                         .build();
 
@@ -69,7 +69,7 @@ public class GPSPointService {
         ZonedDateTime now = ZonedDateTime.now();
 
         ZonedDateTime from = now;
-        ZonedDateTime to = now.plus(17, ChronoUnit.HOURS);
+        ZonedDateTime to = now.plusHours(17);
 
 
         for (int i = 1; i <= 1000; i++) {
@@ -77,8 +77,8 @@ public class GPSPointService {
                     .findById(ThreadLocalRandom.current().nextLong(1, 11))
                     .orElseThrow(IllegalArgumentException::new);
             tripRepository.save(Trip.builder().startDate(from).endDate(to).vehicle(vehicle).build());
-            from = to.plus(15, ChronoUnit.MINUTES);
-            to = from.plus(17, ChronoUnit.HOURS);
+            from = to.plusMinutes(15);
+            to = from.plusHours(17);
         }
     }
 }

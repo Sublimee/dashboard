@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgis/postgis:14-master
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgis -d postgis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_DB: postgis
+      POSTGRES_USER: postgis
+      POSTGRES_PASSWORD: postgis
+    volumes:
+      - ./database:/var/lib/postgresql/data
+      - ./dump:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+    networks:
+      - app-network
+
+  myapp:
+    container_name: myapp
+    image: myapp:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

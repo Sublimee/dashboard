@@ -13,6 +13,7 @@ import com.dashboard.repository.TripRepository;
 import com.dashboard.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class TripService {
     private VehicleRepository vehicleRepository;
     private TripRepository tripRepository;
 
+    @Cacheable("trip")
     public List<GPSPointDto> getTrip(Long tripId) {
         Trip trip = tripRepository.findById(tripId).orElseThrow();
         ZoneId enterpriseZoneId = trip.getVehicle().getEnterprise().getTimeZone().toZoneId();
@@ -44,6 +46,7 @@ public class TripService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable("merged-trips")
     public List<GPSPointDto> getMergedTrips(Long vehicleId, ZonedDateTime from, ZonedDateTime to) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow();
 
@@ -59,6 +62,7 @@ public class TripService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable("trips")
     public PageEntity<TripDto> getTrips(Long vehicleId, int page, int size) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow();
         Enterprise enterprise = vehicle.getEnterprise();
