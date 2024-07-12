@@ -26,6 +26,7 @@ spring:
 logging:
   level:
     org:
+      hibernate.engine.transaction.internal.TransactionImpl: DEBUG
       springframework.security: DEBUG
   file:
     name: app.log

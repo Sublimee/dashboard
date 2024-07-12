@@ -17,9 +17,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Set;
 
 
 @Entity
@@ -33,7 +34,8 @@ public class Vehicle {
 
     @Id
     @Column(unique = true, nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vehicle_seq")
+    @SequenceGenerator(name = "vehicle_seq", sequenceName = "vehicle_seq", initialValue = 1000, allocationSize = 1)
     private Long id;
 
     @Column(nullable = false)
