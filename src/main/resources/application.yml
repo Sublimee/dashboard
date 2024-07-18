@@ -1,5 +1,13 @@
 # Database Properties
 spring:
+  data:
+    mongodb:
+      host: mongo
+      port: 27017
+      database: mydatabase
+      username: admin
+      password: admin
+      authentication-database: admin
   # Hibernate Properties
   # The SQL dialect makes Hibernate generate better SQL for the chosen database
   jpa:

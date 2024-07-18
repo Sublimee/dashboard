@@ -7,7 +7,6 @@ import com.dashboard.domain.Enterprise;
 import com.dashboard.domain.PageEntity;
 import com.dashboard.domain.Vehicle;
 import com.dashboard.dto.VehicleDto;
-import com.dashboard.repository.DriverRepository;
 import com.dashboard.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +32,6 @@ public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
     private final EnterpriseService enterpriseService;
-    private final DriverRepository driverRepository;
     private final ModelService modelService;
     private final SessionFactory sessionFactory;
 
