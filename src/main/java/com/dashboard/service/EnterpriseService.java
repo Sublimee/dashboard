@@ -14,7 +14,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 @AllArgsConstructor
@@ -26,9 +28,11 @@ public class EnterpriseService {
 
     public Iterable<EnterpriseDto> findAll() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Manager manager = managerRepository.findById(((User) authentication.getPrincipal()).getId()).get();
 
-        return manager.getEnterprises().stream()
+        Long managerId = managerRepository.findById(((User) authentication.getPrincipal()).getId()).get().getId();
+        Set<Enterprise> enterprises = enterpriseRepository.findByManagers_Id(managerId);
+
+        return enterprises.stream()
                 .map(EnterpriseConverter::toEnterpriseDto)
                 .collect(Collectors.toList());
     }

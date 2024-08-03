@@ -1,4 +1,3 @@
-# Database Properties
 spring:
   data:
     mongodb:
@@ -11,6 +10,7 @@ spring:
   # Hibernate Properties
   # The SQL dialect makes Hibernate generate better SQL for the chosen database
   jpa:
+    properties.hibernate.format_sql: true
     open-in-view: true
     hibernate:
       ddl-auto: update
@@ -30,8 +30,8 @@ spring:
     url: jdbc:postgresql://db:5432/postgis
     username: postgis
     password: postgis
-
-logging:
+  kafka:
+    bootstrap-servers: kafka:9092
   level:
     org:
       hibernate.engine.transaction.internal.TransactionImpl: DEBUG

@@ -1,5 +1,6 @@
 package com.dashboard.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,6 +15,9 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
+    @Autowired
+    private AuditableAuthenticationSuccessHandler auditableAuthenticationSuccessHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -23,7 +27,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityWebFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
-                .formLogin().and()
+                .formLogin().successHandler(auditableAuthenticationSuccessHandler).and()
                 .httpBasic().disable()
                 .authorizeRequests()
                 .antMatchers("/", "/login", "/signup").permitAll()
