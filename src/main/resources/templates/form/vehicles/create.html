@@ -51,11 +51,6 @@
           th:action="@{/form/vehicles-create}"
           th:object="${vehicle}">
         <div class="form-group">
-            <label for="id">Vehicle Id</label>
-            <input class="form-control" id="id" readonly th:field="*{id}" type="text">
-            <div class="error" id="id_error"></div>
-        </div>
-        <div class="form-group">
             <label for="price">Price</label>
             <input class="form-control" id="price" th:field="*{price}" type="text">
             <div class="error" id="price_error"></div>
@@ -94,12 +89,12 @@
     // We access to the inputs by their id's
     let price = document.getElementById("price");
     let color = document.getElementById("color");
-    let modelId = document.getElementById("modelId");
+    let model = document.getElementById("model");
 
     // Error messages
     let errorElement_price = document.getElementById("price_error");
     let errorElement_color = document.getElementById("color_error");
-    let errorElement_modelId = document.getElementById("modelId_error");
+    let errorElement_model = document.getElementById("model_error");
 
     // Form
     let contactForm = document.getElementById("form");
@@ -108,7 +103,7 @@
     contactForm.addEventListener("submit", function (e) {
         let messagePrice = [];
         let messageColor = [];
-        let messageModelId = [];
+        let messageModel = [];
 
         if (price.value === "" || price.value === null) {
             messagePrice.push("* This field is required");
@@ -118,16 +113,16 @@
             messageColor.push("* This field is required");
         }
 
-        if (modelId.value === "" || modelId.value === null) {
-            messageModelId.push("* This field is required");
+        if (model.value === "" || model.value === null) {
+            messageModel.push("* This field is required");
         }
 
         // Statement to shows the errors
-        if (messagePrice.length || messageColor.length || messageModelId.length) {
+        if (messagePrice.length || messageColor.length || messageModel.length) {
             e.preventDefault();
             errorElement_price.innerText = messagePrice
             errorElement_color.innerText = messageColor
-            errorElement_modelId.innerText = messageModelId
+            errorElement_model.innerText = messageModel
         }
     });
 </script>
