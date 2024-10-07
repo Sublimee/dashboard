@@ -20,12 +20,12 @@ public class CityController {
     }
 
     @GetMapping
-    public Flux<City> getAllProducts() {
+    public Flux<City> getAllCities() {
         return cityService.getAllCities();
     }
 
     @GetMapping("/{id}")
-    public Mono<City> getProductById(@PathVariable String id) {
+    public Mono<City> getCityById(@PathVariable String id) {
         return cityService.geCityById(id);
     }
 }
